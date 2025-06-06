@@ -3,12 +3,11 @@
 #include <unordered_map>
 #include <string>
 #include <any>
+#include <vector>
 
 namespace core {
 
 class Store {
-
-// Based on info I got from https://cengizhanvarli.medium.com/what-is-std-any-in-c-76f2575ad37b combined with prior knowlede of templates
 
 public:
 	template <typename T>
@@ -19,6 +18,17 @@ public:
 	template <typename T>
 	T& get(const std::string& id) {
 		return std::any_cast<T&>(data[id]);
+	}
+
+	template <typename T>
+	std::vector<T> getAll() {
+		std::vector<T> results;
+		for (const auto& [key, value] : data) {
+			if (value.type() == typeid(T)) {
+				results.push_back(std::any_cast<T>(value));
+			}
+		}
+		return results;
 	}
 
 private:

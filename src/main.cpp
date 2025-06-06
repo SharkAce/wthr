@@ -2,18 +2,32 @@
 
 #include "core/Environment.hpp"
 #include "models/TempTimeline.hpp"
+#include "parsing/datasetLoader.hpp"
 
 int main(){
 	
 	core::Store store {};
-	core::Environment env { store };
+	core::Interface interface {};
+	core::Environment env { store, interface };
 
-	models::TempReading reading { models::Timestamp {}, 4.32 };
-	std::vector<models::TempReading> readings { reading };
-	models::TempTimeline timeline { "FR", readings };
+	env.interface.registerCommand("echo", [](const std::string& args) {
+		std::cout << args << std::endl;
+	});
 
-	env.store.add("test", timeline);
-	std::cout << env.store.get<models::TempTimeline>("test").countryCode << std::endl;
+	env.interface.registerCommand("list-country", [&env](const std::string&) {
+			for (auto timeline: env.store.getAll<models::TempTimeline>()) {
+				std::cout << timeline.countryCode << std::endl;
+			}
+	});
+
+	env.interface.registerCommand("load", [&env](const std::string& args) {
+		parsing::loadDataset(args, env);
+	});
+
+
+	while (true) {
+		env.interface.run("> ");
+	}
 
 	return 0;
 }
