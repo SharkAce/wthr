@@ -5,6 +5,5 @@
 
 namespace parsing {
 
-bool validator(const std::string& filePath, core::Environment&);
 
 } // namespace parsing

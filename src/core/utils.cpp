@@ -26,4 +26,10 @@ std::vector<std::string> tokenise(const std::string& line, char separator) {
 	return tokens;
 }
 
+float average(const std::vector<float>& numbers) {
+	float total = 0.f;
+	for (auto number: numbers) total += number;
+	return total / numbers.size();
+}
+
 } // namespace core::utils

@@ -4,6 +4,9 @@
 #include <string>
 #include <any>
 #include <vector>
+#include <optional>
+
+#include "utils.hpp"
 
 namespace core {
 
@@ -16,8 +19,8 @@ public:
 	}
 
 	template <typename T>
-	T& get(const std::string& id) {
-		return std::any_cast<T&>(data[id]);
+	T get(const std::string& id) {
+		return std::any_cast<T>(data[id]);
 	}
 
 	template <typename T>
