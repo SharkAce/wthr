@@ -8,7 +8,8 @@ void registerList(core::Environment& env) {
 	core::Interface::Command list {
 		[&env](const std::string& arg) {
 			auto scope = parsing::readDataScope(arg);
-			auto scopeState = env.store.get<models::DataScopeState&>("dataScopeState");
+			auto& scopeState = env.store.get<models::DataScopeState&>("dataScopeState");
+			auto& timelines = env.store.get<models::TimelineMap&>("timelines");
 
 			if (scope == models::DataScope::Unset) {
 				std::cout << "Invalid scope" << std::endl;
@@ -21,49 +22,46 @@ void registerList(core::Environment& env) {
 			}
 
 			if (scope == models::DataScope::Country) {
-				for (auto timeline: env.store.getAll<models::TempTimeline>()) {
-					std::cout << timeline.countryCode << std::endl;
+				for (const auto& [code, timeline]: timelines) {
+					std::cout << code << std::endl;
 				}
 				return true;
 			}
 
-			auto timeline = env.store.get<models::TempTimeline>(
-				scopeState.countryCode + "_timeline"
-			);
-			auto MonthlyReadings = env.store.getAll<models::TempTimeline>()[0].yearlyReadings;
+			auto& timeline = timelines.at(scopeState.countryCode);
 
 			switch(scope) {
 				case models::DataScope::Year:
-					for (auto& reading: timeline.yearlyReadings) {
-						std::cout << reading.timestamp.year << std::endl;
+					for (auto& [ts, value]: timeline.yearlyReadings) {
+						std::cout << ts.year << std::endl;
 					}
 					break;
 
 				case models::DataScope::Month:
-					for (auto& reading: timeline.monthlyReadings) {
-						if (scopeState.timeData.year == reading.timestamp.year)
-							std::cout << reading.timestamp.month << std::endl;
+					for (auto& [ts, value]: timeline.monthlyReadings) {
+						if (scopeState.timeData.year == ts.year)
+							std::cout << ts.month << std::endl;
 					}
 					break;
 
 				case models::DataScope::Day:
-					for (auto& reading: timeline.daylyReadings) {
+					for (auto& [ts, value]: timeline.dailyReadings) {
 						if (
-							scopeState.timeData.year == reading.timestamp.year &&
-							scopeState.timeData.month == reading.timestamp.month
+							scopeState.timeData.year == ts.year &&
+							scopeState.timeData.month == ts.month
 						)
-						std::cout << reading.timestamp.day << std::endl;
+						std::cout << ts.day << std::endl;
 					}
 					break;
 
 				case models::DataScope::Hour:
-					for (auto& reading: timeline.hourlyReadings) {
+					for (auto& [ts, value]: timeline.hourlyReadings) {
 						if (
-							scopeState.timeData.year == reading.timestamp.year &&
-							scopeState.timeData.month == reading.timestamp.month &&
-							scopeState.timeData.day == reading.timestamp.day
+							scopeState.timeData.year == ts.year &&
+							scopeState.timeData.month == ts.month &&
+							scopeState.timeData.day == ts.day
 						)
-						std::cout << reading.timestamp.hour << std::endl;
+						std::cout << ts.hour << std::endl;
 					}
 					break;
 

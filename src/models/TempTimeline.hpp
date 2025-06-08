@@ -1,36 +1,32 @@
 #pragma once
 
-#include <vector>
+#include <map>
 #include "../core/Environment.hpp"
 #include "../processing/processing.hpp"
 #include "Timestamp.hpp"
 
 namespace models {
 
-template<typename TimestampType>
-struct TempReading {
-	TimestampType timestamp;
-	float temp;
-};
-
-typedef std::vector<TempReading<timestamp::Hour>> HourlyReadings;
-typedef std::vector<TempReading<timestamp::Day>> DaylyReadings;
-typedef std::vector<TempReading<timestamp::Month>> MonthlyReadings;
-typedef std::vector<TempReading<timestamp::Year>> YearlyReadings;
+typedef std::map<timestamp::Hour, float> HourlyReadings;
+typedef std::map<timestamp::Day,float> DailyReadings;
+typedef std::map<timestamp::Month, float> MonthlyReadings;
+typedef std::map<timestamp::Year, float> YearlyReadings;
 
 class TempTimeline {
 public:
 	TempTimeline(const std::string& countryCode, HourlyReadings readings);
 	std::string countryCode;
 	HourlyReadings hourlyReadings;
-	DaylyReadings daylyReadings;
+	DailyReadings dailyReadings;
 	MonthlyReadings monthlyReadings;
 	YearlyReadings yearlyReadings;
 
 private:
-	static DaylyReadings groupHoursByDay(const HourlyReadings&);
-	static MonthlyReadings groupDaysByMonth(const DaylyReadings&);
+	static DailyReadings groupHoursByDay(const HourlyReadings&);
+	static MonthlyReadings groupDaysByMonth(const DailyReadings&);
 	static YearlyReadings groupMonthByYear(const MonthlyReadings&);
 };
+
+typedef std::map<std::string, TempTimeline> TimelineMap;
 
 } // namespace models

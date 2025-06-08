@@ -11,8 +11,9 @@ void registerSelect(core::Environment& env) {
 
 			auto scope = parsing::readDataScope(splitArgs[0]);
 			auto& scopeState = env.store.get<models::DataScopeState&>("dataScopeState");
+			auto& timelines = env.store.get<models::TimelineMap&>("timelines");
 
-			if (env.store.getAll<models::TempTimeline>().empty()) {
+			if (timelines.empty()) {
 				std::cout << "No datasets have been loaded." << std::endl;
 				return false;
 			}
@@ -31,77 +32,67 @@ void registerSelect(core::Environment& env) {
 			if (splitArgs.size() != 2) return false;
 
 			const std::string& id = splitArgs[1];
-			bool valid = false;
 
-			if (scope == models::DataScope::Country) {
-				const auto timelines = env.store.getAll<models::TempTimeline>();
-				for (const auto& timeline: timelines) {
-					if (timeline.countryCode == id) valid = true;
-				}
-				if (valid) {
+			// Country needs to be evaluted first so can
+			// we define a timeline for other scopes to use.
+			if (scope <= models::DataScope::Country) {
+				if (core::utils::validateKey(id, timelines)) {
+					scopeState.scopeLevel = models::DataScope::Country;
 					scopeState.countryCode = id;
-					scopeState.scopeLevel = scope;
+					return true;
 				}
-				return valid;
+				return false;
 			}
 
-			const auto& timeline = env.store.get<models::TempTimeline&>(
-				scopeState.countryCode + "_timeline"
-			);
-			
+			const auto& timeline = timelines.at(scopeState.countryCode);
+			const auto& ts = scopeState.timeData;
+			const short sId = std::stoi(id);
+			const unsigned short usId = std::stoi(id);
+			bool valid = false;
+
 			switch(scope) {
 				case models::DataScope::Year:
-					for (const auto& dataPoint: timeline.yearlyReadings) {
-						if (dataPoint.timestamp.year == std::stoi(id)) valid = true;
-					}
-
-					if (valid) {
-						scopeState.timeData.year = std::stoi(id);
+					if (core::utils::validateKey(
+						models::timestamp::Year { sId },
+						timeline.yearlyReadings
+					)) {
+						scopeState.timeData.year = sId;
+						valid = true;
 					}
 					break;
 
 				case models::DataScope::Month:
-					for (const auto& dataPoint: timeline.monthlyReadings) {
-						if (dataPoint.timestamp.year == scopeState.timeData.year &&
-								dataPoint.timestamp.month == std::stoi(id)
-						) valid = true;
-					}
-
-					if (valid) {
-						scopeState.timeData.month = std::stoi(id);
+					if (core::utils::validateKey(
+						models::timestamp::Month { ts.year, usId },
+						timeline.monthlyReadings
+					)) {
+						scopeState.timeData.month = usId;
+						valid = true;
 					}
 					break;
 
 				case models::DataScope::Day:
-					for (const auto& dataPoint: timeline.daylyReadings) {
-						if (dataPoint.timestamp.year == scopeState.timeData.year &&
-								dataPoint.timestamp.month == scopeState.timeData.month &&
-								dataPoint.timestamp.day == std::stoi(id)
-						) valid = true;
-					}
-
-					if (valid) {
-						scopeState.timeData.day = std::stoi(id);
+					if (core::utils::validateKey(
+						models::timestamp::Day { ts.year, ts.month, usId },
+						timeline.dailyReadings
+					)) {
+						scopeState.timeData.day = usId;
+						valid = true;
 					}
 					break;
 
 				case models::DataScope::Hour:
-					for (const auto& dataPoint: timeline.hourlyReadings) {
-						if (dataPoint.timestamp.year == scopeState.timeData.year &&
-								dataPoint.timestamp.month == scopeState.timeData.month &&
-								dataPoint.timestamp.day == scopeState.timeData.day &&
-								dataPoint.timestamp.hour == std::stoi(id)
-						) valid = true;
-					}
-
-					if (valid) {
-						scopeState.timeData.hour = std::stoi(id);
+					if (core::utils::validateKey(
+						models::timestamp::Hour { ts.year, ts.month, ts.day, usId },
+						timeline.hourlyReadings
+					)) {
+						scopeState.timeData.hour = usId;
+						valid = true;
 					}
 					break;
 
-				default:
-					return false;
-
+				default:					
+					valid = false;
 			}
 
 			if (valid) scopeState.scopeLevel = scope;

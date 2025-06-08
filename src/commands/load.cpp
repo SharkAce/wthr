@@ -25,7 +25,7 @@ void registerLoad(core::Environment& env) {
 				return false;
 			}
 			std::cout << "Loaded " 
-								<< env.store.getAll<models::TempTimeline>()[0].hourlyReadings.size() 
+								<< env.store.get<models::TimelineMap>("timelines").begin()->second.hourlyReadings.size() 
 								<< " data points" << std::endl;
 			return true;
 		},

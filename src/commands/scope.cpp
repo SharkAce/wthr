@@ -7,13 +7,13 @@ namespace commands {
 void registerScope(core::Environment& env) {
 	core::Interface::Command scope {
 		[&env](const std::string&) {
-			if (env.store.getAll<models::TempTimeline>().empty()) {
+			if (env.store.get<models::TimelineMap&>("timelines").empty()) {
 				std::cout << "No datasets have been loaded." << std::endl;
 				return false;
 			}
 
-			auto scopeData = env.store.get<models::DataScopeState&>("dataScopeState");
-			auto scopeLevel = scopeData.scopeLevel;
+			auto& scopeData = env.store.get<models::DataScopeState&>("dataScopeState");
+			auto& scopeLevel = scopeData.scopeLevel;
 
 			if (scopeLevel >= models::DataScope::Country) {
 				std::cout << "Country: " << scopeData.countryCode << std::endl;

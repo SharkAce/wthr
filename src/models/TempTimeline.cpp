@@ -8,60 +8,48 @@ namespace models {
 TempTimeline::TempTimeline(const std::string& countryCode, HourlyReadings readings):
 	countryCode(countryCode),
 	hourlyReadings(readings),
-	daylyReadings(groupHoursByDay(hourlyReadings)),
-	monthlyReadings(groupDaysByMonth(daylyReadings)),
+	dailyReadings(groupHoursByDay(hourlyReadings)),
+	monthlyReadings(groupDaysByMonth(dailyReadings)),
 	yearlyReadings(groupMonthByYear(monthlyReadings)) {};
 
-DaylyReadings TempTimeline::groupHoursByDay(const models::HourlyReadings& data) {
-	std::map<models::timestamp::Day, std::vector<float>> groups;
-	for (const auto& reading: data) {
-		auto& ts = reading.timestamp;
-		models::timestamp::Day key { ts.year, ts.month, ts.day };
-		groups[key].push_back(reading.temp);
+DailyReadings TempTimeline::groupHoursByDay(const HourlyReadings& data) {
+	std::map<timestamp::Day, std::vector<float>> groups;
+	for (const auto& [ts, temp]: data) {
+		timestamp::Day key { ts.year, ts.month, ts.day };
+		groups[key].push_back(temp);
 	};
 
-models::DaylyReadings output;
+	DailyReadings output;
 	for (const auto& [ts, values]: groups) {
-		auto entry = models::TempReading<models::timestamp::Day> {
-			ts, core::utils::average(values)
-		};
-		output.push_back(entry);
+		output[ts] = core::utils::average(values);
 	};
 	return output;
 }
 
-models::MonthlyReadings TempTimeline::groupDaysByMonth(const models::DaylyReadings& data) {
-	std::map<models::timestamp::Month, std::vector<float>> groups;
-	for (const auto& reading: data) {
-		auto& ts = reading.timestamp;
-		models::timestamp::Month key { ts.year, ts.month };
-		groups[key].push_back(reading.temp);
+MonthlyReadings TempTimeline::groupDaysByMonth(const DailyReadings& data) {
+	std::map<timestamp::Month, std::vector<float>> groups;
+	for (const auto& [ts, temp]: data) {
+		timestamp::Month key { ts.year, ts.month };
+		groups[key].push_back(temp);
 	};
 
-	models::MonthlyReadings output;
+	MonthlyReadings output;
 	for (const auto& [ts, values]: groups) {
-		auto entry = models::TempReading<models::timestamp::Month> {
-			ts, core::utils::average(values)
-		};
-		output.push_back(entry);
+		output[ts] = core::utils::average(values);
 	};
 	return output;
 }
 
-models::YearlyReadings TempTimeline::groupMonthByYear(const models::MonthlyReadings& data) {
-	std::map<models::timestamp::Year, std::vector<float>> groups;
-	for (const auto& reading: data) {
-		auto& ts = reading.timestamp;
-		models::timestamp::Year key { ts.year };
-		groups[key].push_back(reading.temp);
+YearlyReadings TempTimeline::groupMonthByYear(const MonthlyReadings& data) {
+	std::map<timestamp::Year, std::vector<float>> groups;
+	for (const auto& [ts, temp]: data) {
+		timestamp::Year key { ts.year };
+		groups[key].push_back(temp);
 	};
 
-	models::YearlyReadings output;
+	YearlyReadings output;
 	for (const auto& [ts, values]: groups) {
-		auto entry = models::TempReading<models::timestamp::Year> {
-			ts, core::utils::average(values)
-		};
-		output.push_back(entry);
+		output[ts] = core::utils::average(values);
 	};
 	return output;
 }

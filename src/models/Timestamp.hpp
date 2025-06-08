@@ -12,7 +12,7 @@ struct Hour {
 	bool operator<(const Hour& other) const {
 		if (year != other.year) return year < other.year;
 		if (month != other.month) return month < other.month;
-		if (month != other.day) return day < other.day;
+		if (day != other.day) return day < other.day;
 		return hour < other.hour;
 	}
 };

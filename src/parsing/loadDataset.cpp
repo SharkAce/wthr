@@ -2,6 +2,7 @@
 #include <fstream>
 #include <map>
 
+
 namespace parsing {
 
 bool loadDataset(const std::string& filePath, core::Environment& env) {
@@ -26,18 +27,18 @@ bool loadDataset(const std::string& filePath, core::Environment& env) {
 	std::string row;
 	while (std::getline(fileHandle, row)) {
 		auto rowData = core::utils::tokenise(row, ',');
+		models::timestamp::Hour ts = readTimestamp(rowData[0]);
+
 		for (unsigned int i = 1; i < rowData.size(); ++i) {
-			data[i-1].push_back(models::TempReading<models::timestamp::Hour> {
-				readTimestamp(rowData[0]),
-				std::stof(rowData[i])
-			});
+			data[i-1][ts] = std::stof(rowData[i]);
 		}
 	}
 
+	auto& timelines = env.store.get<models::TimelineMap&>("timelines");
 	for (int i = 0; i < dataSize; ++i) {
 		auto code = countryCodes[i].substr(0,2);
-		models::TempTimeline timeline (code, data[i]);
-		env.store.add(code + "_timeline", timeline);
+		models::TempTimeline timeline(code, data[i]);
+		timelines.emplace(code, timeline);
 	}
 
 	fileHandle.close();
