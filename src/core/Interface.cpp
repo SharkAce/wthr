@@ -19,7 +19,7 @@ void Interface::handleCommand() {
 
 	if (utils::validateKey(command, commands)) {
 		if (!commands[command].action(argument)) {
-			std::cout << "Wrong usage of " << command << '.' << std::endl;
+			std::cout << command << " failed" << std::endl;
 			commands[command].help();
 		}
 	} else {

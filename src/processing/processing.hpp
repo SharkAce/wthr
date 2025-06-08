@@ -5,6 +5,4 @@
 
 namespace processing {
 
-unsigned short daysInMonth(int y, int m);
-
 } // namespace processing

@@ -17,8 +17,9 @@ void registerHelp(core::Environment& env) {
 			return true;
 		},
 		[&env]() {
-			std::cout << "[help]:\nGives info on how to use the different commands.\n"
-								<< "Available arguments:" << std::endl;
+			std::cout << "[help]\nGives info on how to use the different commands.\n"
+								<< "Usage: help <command>\n"
+								<< "Available commands:" << std::endl;
 			for (auto command: env.interface.getCommands()) {
 				std::cout << command.first << std::endl;
 			}

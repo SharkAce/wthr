@@ -1,7 +1,6 @@
 #include "../core/Environment.hpp"
 #include "../models/models.hpp"
 #include "../parsing/parsing.hpp"
-#include "../processing/processing.hpp"
 
 namespace commands {
 
@@ -12,7 +11,7 @@ void registerList(core::Environment& env) {
 			auto scopeState = env.store.get<models::DataScopeState&>("dataScopeState");
 
 			if (scope == models::DataScope::Unset) {
-				std::cout << "Invalid scope." << std::endl;
+				std::cout << "Invalid scope" << std::endl;
 				return false;
 			}
 
@@ -28,46 +27,55 @@ void registerList(core::Environment& env) {
 				return true;
 			}
 
-			int low = 0, high = 0;
-			auto timeline = env.store.getAll<models::TempTimeline>()[0].yearlyReadings;
+			auto timeline = env.store.get<models::TempTimeline>(
+				scopeState.countryCode + "_timeline"
+			);
+			auto MonthlyReadings = env.store.getAll<models::TempTimeline>()[0].yearlyReadings;
 
 			switch(scope) {
 				case models::DataScope::Year:
-					low = timeline[0].timestamp.year;
-					high = timeline[timeline.size()].timestamp.year;
+					for (auto& reading: timeline.yearlyReadings) {
+						std::cout << reading.timestamp.year << std::endl;
+					}
 					break;
 
 				case models::DataScope::Month:
-					low = 1;
-					high = 12;
+					for (auto& reading: timeline.monthlyReadings) {
+						if (scopeState.timeData.year == reading.timestamp.year)
+							std::cout << reading.timestamp.month << std::endl;
+					}
 					break;
 
 				case models::DataScope::Day:
-					low = 1;
-					high = processing::daysInMonth(
-						(int)scopeState.timeData.year, 
-						(int)scopeState.timeData.month
-					);
+					for (auto& reading: timeline.daylyReadings) {
+						if (
+							scopeState.timeData.year == reading.timestamp.year &&
+							scopeState.timeData.month == reading.timestamp.month
+						)
+						std::cout << reading.timestamp.day << std::endl;
+					}
 					break;
 
 				case models::DataScope::Hour:
-					low = 0;
-					high = 23;
+					for (auto& reading: timeline.hourlyReadings) {
+						if (
+							scopeState.timeData.year == reading.timestamp.year &&
+							scopeState.timeData.month == reading.timestamp.month &&
+							scopeState.timeData.day == reading.timestamp.day
+						)
+						std::cout << reading.timestamp.hour << std::endl;
+					}
 					break;
 
 				default:
 					return false;
 			}
-
-			for (int i = low; i <= high; ++i) {
-				std::cout << i << std::endl;
-			};
 			
 			return true;
 		},
 		[]() {
 			std::cout << "[list]\nUsed to list available datapoint for each scope.\n"
-								<< "This command assumes complete data for time and date.\n" 
+								<< "Usage: list <scope>\n"
 								<< "Avalable scopes are: country, year, month, day, hour" << std::endl;
 		}
 	};

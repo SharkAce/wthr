@@ -4,7 +4,10 @@ namespace commands {
 
 void registerShow(core::Environment& env) {
 	core::Interface::Command show {
-		[&env](const std::string&) {
+		[&env](const std::string& arg) {
+			if (arg == "canddle") {};
+			if (arg == "plot") {};
+			if (arg == "prediciton") {};
 			
 			return true;
 		},

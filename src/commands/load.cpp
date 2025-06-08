@@ -26,11 +26,12 @@ void registerLoad(core::Environment& env) {
 			}
 			std::cout << "Loaded " 
 								<< env.store.getAll<models::TempTimeline>()[0].hourlyReadings.size() 
-								<< " data points." << std::endl;
+								<< " data points" << std::endl;
 			return true;
 		},
 		[]() {
 			std::cout << "[load]\nUsed to load a dataset inside the datasets directory.\n" 
+								<< "Usage: load <file name>\n"
 								<< "The available datasets are:" << std::endl;
 
 			for (const auto& entry : std::filesystem::directory_iterator("datasets/")) {

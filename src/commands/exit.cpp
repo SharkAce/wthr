@@ -10,7 +10,7 @@ void registerExit(core::Environment& env) {
 			return true;
 		},
 		[]() {
-			std::cout << "[exit]:\nUsed to exit the application." << std::endl;
+			std::cout << "[exit]\nUsed to exit the application." << std::endl;
 		}
 	};
 
