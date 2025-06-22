@@ -21,9 +21,20 @@ public:
 	MonthlyReadings monthlyReadings;
 	YearlyReadings yearlyReadings;
 
+	template <typename MapType, typename KeyType>
+	static std::vector<float> getRange(const MapType& readings, const KeyType start, const KeyType end) {
+		std::vector<float> results;
+		auto low = readings.lower_bound(start);
+		auto high = readings.upper_bound(end);
+
+		for (auto it = low; it != high; ++it) {
+			results.push_back(readings.at(it));
+		}
+		return results;
+	};
+
 private:
-	// I wasn't able to make these using a template because of
-	// TempTimeline.cpp lines 18,32,86
+	// I wasn't able to make these using a template because of the key generation
 	static DailyReadings groupHoursByDay(const HourlyReadings&);
 	static MonthlyReadings groupDaysByMonth(const DailyReadings&);
 	static YearlyReadings groupMonthsByYear(const MonthlyReadings&);

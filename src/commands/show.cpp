@@ -12,56 +12,28 @@ void registerShow(core::Environment& env) {
 			if (arg == "canddles") {
 				initscr();
 				core::utils::leaveScrOnInput();
+				return true;
 			}
-			else if (arg == "plot") {
+			if (arg == "plot") {
 				initscr();
 				visuals::plot(env);
 				core::utils::leaveScrOnInput();
+				return true;
 			}
-			else if (arg == "prediciton") {
+			if (arg == "prediciton") {
 				initscr();
 				core::utils::leaveScrOnInput();
+				return true;
 			}
-			else if (arg == "temp") {
-				const auto& scopeData = env.store.get<models::DataScopeState&>("dataScopeState");
-				const auto& timelines = env.store.get<models::TimelineMap&>("timelines");
-				const auto& ts = scopeData.timeData;
-				float temp;
-				switch(scopeData.scopeLevel) {
-					case models::DataScope::Year:
-						temp = timelines
-							.at(scopeData.countryCode).yearlyReadings
-							.at(models::timestamp::Year{ ts.year });
-						break;
-
-					case models::DataScope::Month:
-						temp = timelines
-							.at(scopeData.countryCode).monthlyReadings
-							.at(models::timestamp::Month{ ts.year, ts.month });
-						break;
-
-					case models::DataScope::Day:
-						temp = timelines
-							.at(scopeData.countryCode).dailyReadings
-							.at(models::timestamp::Day{ ts.year, ts.month, ts.day });
-						break;
-
-					case models::DataScope::Hour:
-						temp = timelines
-							.at(scopeData.countryCode).hourlyReadings.at(ts);
-						break;
-
-					default:					
-						return false;
-				}
-				std::cout << temp << "C" << std::endl;
-
-			} else return false;
-
-			return true;
+			if (arg == "temp") {
+				visuals::temp(env);
+				return true;
+			}
+			return false;
 		},
 		[]() {
-			std::cout << "[show]\nUsed to display temp data." << std::endl;
+			std::cout << "[show]\nUsed to display temperature data.\n"
+								<< "Available visuals are: temp, plot, prediction, candles" << std::endl;
 		}
 	};
 

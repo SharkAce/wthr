@@ -1,8 +1,12 @@
+#include <ncurses.h>
 #include "App.hpp"
 #include "../commands/commands.hpp"
 #include "../models/models.hpp"
 
 App::App(): env(core::Environment{ store, interface }){}
+
+// Properly terminate the ncurses context
+App::~App() { endwin(); }
 
 void App::init() {
 	commands::registerCommands(env);
