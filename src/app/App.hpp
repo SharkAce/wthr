@@ -13,7 +13,6 @@ private:
 	bool initialized = false;
 	bool exitPending = false;
 
-	core::Display display;
 	core::Interface interface;
 	core::Store store;
 	core::Environment env;

@@ -38,7 +38,7 @@ bool loadDataset(const std::string& filePath, core::Environment& env) {
 	for (int i = 0; i < dataSize; ++i) {
 		auto code = countryCodes[i].substr(0,2);
 		models::TempTimeline timeline(code, data[i]);
-		timelines.emplace(code, timeline);
+		timelines.insert_or_assign(code, timeline);
 	}
 
 	fileHandle.close();

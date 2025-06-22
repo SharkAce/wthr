@@ -1,3 +1,6 @@
+#include <ncurses.h>
+#include <limits>
+
 #include "utils.hpp"
 
 namespace core::utils {
@@ -30,6 +33,28 @@ float average(const std::vector<float>& numbers) {
 	float total = 0.f;
 	for (auto number: numbers) total += number;
 	return total / numbers.size();
+}
+
+float min(const std::vector<float>& numbers) {
+	float min = std::numeric_limits<float>::max();
+	for (const auto& number: numbers) {
+		if (number < min) min = number;
+	}
+	return min;
+}
+
+float max(const std::vector<float>& numbers) {
+	float max = std::numeric_limits<float>::min();
+	for (const auto& number: numbers) {
+		if (number > max) max = number;
+	}
+	return max;
+}
+
+void leaveScrOnInput() {
+	getch();
+	endwin();
+	clear();
 }
 
 } // namespace core::utils

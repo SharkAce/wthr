@@ -2,7 +2,7 @@
 #include "../commands/commands.hpp"
 #include "../models/models.hpp"
 
-App::App(): env(core::Environment{ store, interface, display }){}
+App::App(): env(core::Environment{ store, interface }){}
 
 void App::init() {
 	commands::registerCommands(env);

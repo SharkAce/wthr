@@ -1,14 +1,27 @@
+#include <ncurses.h>
+
 #include "../core/Environment.hpp"
 #include "../models/models.hpp"
+#include "../visuals/visuals.hpp"
 
 namespace commands {
 
 void registerShow(core::Environment& env) {
 	core::Interface::Command show {
 		[&env](const std::string& arg) {
-			if (arg == "canddle") {}
-			else if (arg == "plot") {}
-			else if (arg == "prediciton") {}
+			if (arg == "canddles") {
+				initscr();
+				core::utils::leaveScrOnInput();
+			}
+			else if (arg == "plot") {
+				initscr();
+				visuals::plot(env);
+				core::utils::leaveScrOnInput();
+			}
+			else if (arg == "prediciton") {
+				initscr();
+				core::utils::leaveScrOnInput();
+			}
 			else if (arg == "temp") {
 				const auto& scopeData = env.store.get<models::DataScopeState&>("dataScopeState");
 				const auto& timelines = env.store.get<models::TimelineMap&>("timelines");
@@ -41,7 +54,7 @@ void registerShow(core::Environment& env) {
 					default:					
 						return false;
 				}
-				std::cout << temp << "°" << std::endl;
+				std::cout << temp << "C" << std::endl;
 
 			} else return false;
 

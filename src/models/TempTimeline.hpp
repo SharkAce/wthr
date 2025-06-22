@@ -22,9 +22,11 @@ public:
 	YearlyReadings yearlyReadings;
 
 private:
+	// I wasn't able to make these using a template because of
+	// TempTimeline.cpp lines 18,32,86
 	static DailyReadings groupHoursByDay(const HourlyReadings&);
 	static MonthlyReadings groupDaysByMonth(const DailyReadings&);
-	static YearlyReadings groupMonthByYear(const MonthlyReadings&);
+	static YearlyReadings groupMonthsByYear(const MonthlyReadings&);
 };
 
 typedef std::map<std::string, TempTimeline> TimelineMap;

@@ -10,7 +10,7 @@ TempTimeline::TempTimeline(const std::string& countryCode, HourlyReadings readin
 	hourlyReadings(readings),
 	dailyReadings(groupHoursByDay(hourlyReadings)),
 	monthlyReadings(groupDaysByMonth(dailyReadings)),
-	yearlyReadings(groupMonthByYear(monthlyReadings)) {};
+	yearlyReadings(groupMonthsByYear(monthlyReadings)) {};
 
 DailyReadings TempTimeline::groupHoursByDay(const HourlyReadings& data) {
 	std::map<timestamp::Day, std::vector<float>> groups;
@@ -40,7 +40,7 @@ MonthlyReadings TempTimeline::groupDaysByMonth(const DailyReadings& data) {
 	return output;
 }
 
-YearlyReadings TempTimeline::groupMonthByYear(const MonthlyReadings& data) {
+YearlyReadings TempTimeline::groupMonthsByYear(const MonthlyReadings& data) {
 	std::map<timestamp::Year, std::vector<float>> groups;
 	for (const auto& [ts, temp]: data) {
 		timestamp::Year key { ts.year };
