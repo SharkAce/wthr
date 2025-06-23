@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <limits>
+#include <chrono>
 
 #include "utils.hpp"
 
@@ -55,6 +56,11 @@ void leaveScrOnInput() {
 	getch();
 	endwin();
 	clear();
+}
+
+// Copied from https://stackoverflow.com/a/79232587
+int getDaysInMonth(int year, int month) {
+	return unsigned{ (std::chrono::last/month/year).day() };
 }
 
 } // namespace core::utils

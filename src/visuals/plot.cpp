@@ -3,18 +3,20 @@
 #include "../models/models.hpp"
 
 void visuals::plot(const core::Environment& env) {
-	auto& s = env.store
+	auto& scopeState = env.store
 		.get<models::DataScopeState&>("dataScopeState");
 
 	auto& t = env.store
 		.get<models::TimelineMap&>("timelines")
-		.at(s.countryCode);
+		.at(scopeState.countryCode);
 
 	int start, end, padding;
 	
 	std::vector<float> values;
 
-	switch(s.scopeLevel) {
+	const auto& ts = scopeState.timeData;
+
+	switch(scopeState.scopeLevel) {
 		case models::DataScope::Country:
 			start = t.yearlyReadings.begin()->first.year;
 			end = t.yearlyReadings.rbegin()->first.year;
@@ -28,37 +30,33 @@ void visuals::plot(const core::Environment& env) {
 			start = 1;
 			end = 12;
 			padding = 5;
-			for (auto& [ts, reading]: t.dailyReadings) {
-				if (ts.year == s.timeData.year) values.push_back(reading);
-			}
+			values = core::utils::getRange(
+				models::timestamp::Day(ts.year, 1, 1),
+				models::timestamp::Day(ts.year, 12, 31),
+				t.dailyReadings
+			);
 			break;
 
 		case models::DataScope::Month:
 			start = 1;
-			end = 28;
+			end = core::utils::getDaysInMonth(ts.year, ts.month);
 			padding = 2;
-			for (auto& [ts, reading]: t.dailyReadings) {
-				if (
-					ts.year != s.timeData.year || 
-					ts.month != s.timeData.month
-				) continue;
-
-				if (ts.day > end) end = ts.day;
-				values.push_back(reading);
-			}
+			values = core::utils::getRange(
+				models::timestamp::Day(ts.year, ts.month, 1),
+				models::timestamp::Day(ts.year, ts.month, end),
+				t.dailyReadings
+			);
 			break;
 
 		case models::DataScope::Day:
 			start = 0;
 			end = 23;
 			padding = 2;
-			for (auto& [ts, reading]: t.hourlyReadings) {
-				if (
-					ts.year == s.timeData.year && 
-					ts.month == s.timeData.month && 
-					ts.day == s.timeData.day
-				) values.push_back(reading);
-			}
+			values = core::utils::getRange(
+				models::timestamp::Hour(ts.year, ts.month, ts.day, 0),
+				models::timestamp::Hour(ts.year, ts.month, ts.day, 23),
+				t.hourlyReadings
+			);
 			break;
 
 		default:
@@ -69,14 +67,14 @@ void visuals::plot(const core::Environment& env) {
 	float maxValue = core::utils::max(values) + padding;
 	float valueRange = maxValue - minValue;
 
-	visuals::graph(start, end, (int)minValue, (int)maxValue);
+	graph(start, end, (int)minValue, (int)maxValue);
 
-	for (unsigned int col = 0; col < visuals::cols; ++col) {
-		int valueIndex = (values.size() - 1) * col / visuals::cols;
+	for (unsigned int col = 0; col < cols; ++col) {
+		int valueIndex = (values.size() - 1) * col / cols;
 		float normalized = (values.at(valueIndex) - minValue) / valueRange;
-		int row = std::round(normalized * visuals::rows);
+		int row = std::round(normalized * rows);
 
-		move((visuals::rows - row) + visuals::offsetY, col + visuals::offsetX + 1);
-		printw("o");
+		move((rows - row) + offsetY, col + offsetX + 1);
+		addch('o');
 	}
 }

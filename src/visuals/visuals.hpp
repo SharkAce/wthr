@@ -8,7 +8,8 @@ namespace visuals {
 void graph(int startX, int endX, int startY, int endY);
 
 void plot(const core::Environment&);
-
+void candlesticks(const core::Environment&);
+void prediction(const core::Environment&, int predictionCount);
 void temp(const core::Environment&);
 
 const int rows = 16;

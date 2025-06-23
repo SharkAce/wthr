@@ -13,6 +13,12 @@ struct Candlestick {
 	low(core::utils::min(data)),
 	close(data.back()) {};
 
+	Candlestick(float open, float high, float low, float close):
+	open(open),
+	high(high),
+	low(low),
+	close(close) {};
+
 	float open;
 	float high;
 	float low;
