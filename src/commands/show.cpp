@@ -18,6 +18,7 @@ void registerShow(core::Environment& env) {
 			auto splitArgs = core::utils::tokenise(args, ' ');
 			if (splitArgs.size() == 0) {
 				std::cout << "Please select a type of visual." << std::endl;
+				return false;
 			}
 
 			if (splitArgs[0] == "candles") {
