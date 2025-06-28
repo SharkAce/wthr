@@ -15,14 +15,14 @@ void visuals::graph(int startX, int endX, int startY, int endY) {
 	for (int i = 0; i < vLabels; ++i) {
 		float value = (float)startY + vValueInterval*(float)i;
 		std::string textValue;
-		std::ostringstream oss;
+		std::stringstream ss;
 
 		if (endY - startY >= rows) {
-			oss << std::fixed << std::setprecision(0) << value << "C";
+			ss << std::fixed << std::setprecision(0) << value << "C";
 		} else {
-			oss << std::fixed << std::setprecision(2) << value << "C";
+			ss << std::fixed << std::setprecision(2) << value << "C";
 		}
-		textValue = oss.str();
+		textValue = ss.str();
 		move(rows + offsetY - (i*vCharInterval) - 1, offsetX - textValue.size());
 		printw("%s", textValue.c_str());
 	}
