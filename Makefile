@@ -19,7 +19,7 @@ LDFLAGS := $(shell pkg-config --libs ncurses)
 all: $(EXEC)
 
 $(EXEC): $(OBJECTS)
-	$(CXX) $(LDFLAGS) $^ -o $@
+	$(CXX) $^ $(LDFLAGS) -o $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
