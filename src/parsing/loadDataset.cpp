@@ -6,7 +6,6 @@
 namespace parsing {
 
 bool loadDataset(const std::string& filePath, core::Environment& env) {
-	//if (!validator(filePath, env)) return false;
 
 	std::ifstream fileHandle { filePath };
 	std::string fieldsText;

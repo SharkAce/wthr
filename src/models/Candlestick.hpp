@@ -25,4 +25,4 @@ struct Candlestick {
 	float close;
 };
 
-}
+} // namespace models

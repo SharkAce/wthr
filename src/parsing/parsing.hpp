@@ -1,12 +1,12 @@
 #pragma once
 
 #include "../core/Environment.hpp"
-#include "../models/TempTimeline.hpp"
-#include "../models/DataScope.hpp"
+#include "../models/models.hpp"
 
 namespace parsing {
 
 models::timestamp::Hour readTimestamp(const std::string&);
+models::VisualMode readVisualMode(const std::string&);
 models::DataScope readDataScope(const std::string&);
 
 bool loadDataset(const std::string& filePath, core::Environment&);

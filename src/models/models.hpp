@@ -4,3 +4,4 @@
 #include "DataScope.hpp"
 #include "TempTimeline.hpp"
 #include "Timestamp.hpp"
+#include "VisualMode.hpp"

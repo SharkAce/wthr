@@ -3,6 +3,7 @@
 #include "../core/Environment.hpp"
 #include "../models/models.hpp"
 #include "../visuals/visuals.hpp"
+#include "../parsing/parsing.hpp"
 
 namespace commands {
 
@@ -11,40 +12,66 @@ void registerShow(core::Environment& env) {
 		[&env](const std::string& args) {
 			auto& scopeState = env.store.get<models::DataScopeState&>("dataScopeState");
 			if (scopeState.scopeLevel < models::DataScope::Country) {
-				std::cout << "No dataset loaded." << std::endl;
+				std::cout << "No country selected." << std::endl;
 				return false;
 			}
 
 			auto splitArgs = core::utils::tokenise(args, ' ');
 			if (splitArgs.size() == 0) {
-				std::cout << "Please select a type of visual." << std::endl;
+				std::cout << "Please select a visual mode." << std::endl;
 				return false;
 			}
 
-			if (splitArgs[0] == "candles") {
-				initscr();
-				visuals::candlesticks(env);
-				core::utils::leaveScrOnInput();
-				return true;
-			}
-			if (splitArgs[0] == "plot") {
-				initscr();
-				visuals::plot(env);
-				core::utils::leaveScrOnInput();
-				return true;
-			}
-			if (splitArgs[0] == "prediction") {
-				int predictionCount = 
-					splitArgs.size() == 2 ? std::stoi(splitArgs[1]) : 12;
+			models::VisualMode visualMode = parsing::readVisualMode(splitArgs[0]);
 
-				initscr();
-				visuals::prediction(env, predictionCount);
-				core::utils::leaveScrOnInput();
-				return true;
-			}
-			if (splitArgs[0] == "temp") {
-				visuals::temp(env);
-				return true;
+			switch (visualMode) {
+				case models::VisualMode::temp:
+					if (scopeState.scopeLevel <= models::DataScope::Country) {
+						std::cout << "Scope level is too low." << std::endl;
+						return false;
+					}
+
+					visuals::temp(env);
+					return true;
+
+				case models::VisualMode::plot:
+					if (scopeState.scopeLevel >= models::DataScope::Hour) {
+						std::cout << "Scope level is too high." << std::endl;
+						return false;
+					}
+
+					initscr();
+					visuals::plot(env);
+					core::utils::leaveScrOnInput();
+					return true;
+
+				case models::VisualMode::prediction:
+					if (scopeState.scopeLevel >= models::DataScope::Hour) {
+						std::cout << "Scope level is too high." << std::endl;
+						return false;
+					}
+
+					initscr();
+					visuals::prediction(
+						env, splitArgs.size() == 2 ? std::stoi(splitArgs[1]) : 12
+					);
+					core::utils::leaveScrOnInput();
+					return true;
+
+				case models::VisualMode::candlestick:
+					if (scopeState.scopeLevel >= models::DataScope::Day) {
+						std::cout << "Scope level is too high." << std::endl;
+						return false;
+					}
+
+					initscr();
+					visuals::candlesticks(env);
+					core::utils::leaveScrOnInput();
+					return true;
+				
+				case models::VisualMode::invalid:
+					std::cout << "Select a valid mode." << std::endl;
+					return false;
 			}
 			return false;
 		},
