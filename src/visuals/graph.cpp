@@ -1,6 +1,6 @@
 #include "visuals.hpp"
 #include <string>
-#include <format>
+#include <iomanip>
 
 void visuals::graph(int startX, int endX, int startY, int endY) {
 	move(offsetY,offsetX);
@@ -14,13 +14,15 @@ void visuals::graph(int startX, int endX, int startY, int endY) {
 	const int vCharInterval = (rows - 1) / (vLabels - 1);
 	for (int i = 0; i < vLabels; ++i) {
 		float value = (float)startY + vValueInterval*(float)i;
-		// Change how the temp is displayed if the delta is less than rows
 		std::string textValue;
+		std::ostringstream oss;
+
 		if (endY - startY >= rows) {
-			textValue = std::format("{:.0f}C", value);
+			oss << std::fixed << std::setprecision(0) << value << "C";
 		} else {
-			textValue = std::format("{:.2f}C", value);
+			oss << std::fixed << std::setprecision(2) << value << "C";
 		}
+		textValue = oss.str();
 		move(rows + offsetY - (i*vCharInterval) - 1, offsetX - textValue.size());
 		printw("%s", textValue.c_str());
 	}
