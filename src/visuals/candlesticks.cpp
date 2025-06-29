@@ -5,34 +5,33 @@
 using models::Candlestick;
 
 void visuals::candlesticks(const core::Environment& env) {
-	auto& s = env.store
+	auto& scopeState = env.store
 		.get<models::DataScopeState&>("dataScopeState");
 
 	auto& t = env.store
 		.get<models::TimelineMap&>("timelines")
-		.at(s.countryCode);
+		.at(scopeState.countryCode);
+
+	const auto& ts = scopeState.timeData;
 
 	int start, end, padding;
 	
-	short segmentId;
-	std::vector<float> segmentValues;
+	std::vector<float> values;
 	std::vector<Candlestick> candles;
 
-	switch(s.scopeLevel) {
+	switch(scopeState.scopeLevel) {
 		case models::DataScope::Country:
 			start = t.yearlyReadings.begin()->first.year;
 			end = t.yearlyReadings.rbegin()->first.year;
 			padding = 14;
 
-			segmentId = start;
-			for (auto& [ts, reading]: t.dailyReadings) {
-				if (segmentId != ts.year) {
-					candles.push_back(Candlestick(segmentValues));
-					segmentValues.clear();
-					++segmentId;
-				}
-				segmentValues.push_back(reading);
-			};
+			values = core::utils::getRange(
+				models::timestamp::Day(start, 1, 1),
+				models::timestamp::Day(end, 12, 31),
+				t.dailyReadings
+			);
+
+			candles = processing::computeCandles(values, 365);
 			break;
 
 		case models::DataScope::Year:
@@ -40,16 +39,13 @@ void visuals::candlesticks(const core::Environment& env) {
 			end = 12;
 			padding = 5;
 
-			segmentId = start;
-			for (auto& [ts, reading]: t.dailyReadings) {
-				if (ts.year != s.timeData.year) continue;
-				if (segmentId != ts.month) {
-					candles.push_back(Candlestick(segmentValues));
-					segmentValues.clear();
-					++segmentId;
-				}
-				segmentValues.push_back(reading);
-			};
+			values = core::utils::getRange(
+				models::timestamp::Day(ts.year, 1, 1),
+				models::timestamp::Day(ts.year, 12, 31),
+				t.dailyReadings
+			);
+
+			candles = processing::computeCandles(values, 30);
 			break;
 
 		case models::DataScope::Month:
@@ -57,32 +53,19 @@ void visuals::candlesticks(const core::Environment& env) {
 			end = 28;
 			padding = 2;
 
-			segmentId = start;
-			for (auto& [ts, reading]: t.hourlyReadings) {
-				if (
-					ts.year != s.timeData.year || 
-					ts.month != s.timeData.month
-				) continue;
-				if (ts.day > end) end = ts.day;
+			values = core::utils::getRange(
+				models::timestamp::Hour(ts.year, ts.month, 1, 0),
+				models::timestamp::Hour(ts.year, ts.month, 31, 23),
+				t.hourlyReadings
+			);
 
-				if (segmentId != ts.day) {
-					candles.push_back(Candlestick(segmentValues));
-					segmentValues.clear();
-					++segmentId;
-				}
-				segmentValues.push_back(reading);
-			}
+			candles = processing::computeCandles(values, 24);
 			break;
 
 		default:
 			return;
 	}
 
-	// Adding the last segment
-	if (!segmentValues.empty()) {
-		candles.push_back(Candlestick(segmentValues));
-	}
-	
 	float minValue = candles.at(0).low;
 	float maxValue = candles.at(0).high;
 	for (const auto& candle: candles) {
