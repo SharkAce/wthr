@@ -1,7 +1,7 @@
 # Wthr
 
 ## Dependencies
-- **Linux** (Tested on Debian 12+ and Gentoo)  
+- **Linux** (Tested on Debian 12.5.0 and Gentoo)  
 - **Compiler**: `g++` (GCC 8 or later required for C++20 support)  
 - **Build tools**: `make`, `pkg-config`  
 - **Libraries**: `libncurses-dev`
