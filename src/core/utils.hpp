@@ -31,6 +31,14 @@ std::vector<V> getRange(const K& startKey, const K& endKey, const std::map<K,V>&
 	return values;
 }
 
+template <typename V>
+std::vector<V> getRange(size_t start, size_t end, const std::vector<V>& vec) {
+	if (start< 0) start = 0;
+	if (end > vec.size()) end = vec.size();
+
+	return std::vector<V>(vec.begin() + start, vec.begin() + end);
+}
+
 void leaveScrOnInput();
 
 } // namespace core::utils
